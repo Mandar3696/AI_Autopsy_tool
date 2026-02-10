@@ -1,0 +1,20 @@
+# Node
+node_modules/
+
+# Python
+venv/
+__pycache__/
+
+# Data / ML
+dataset/
+archive/
+*.jpg
+*.png
+
+# Env
+.env
+
+# OS
+.DS_Store
+
+

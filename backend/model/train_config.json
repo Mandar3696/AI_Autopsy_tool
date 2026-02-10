@@ -1,0 +1,9 @@
+{
+    "img_size": [
+        224,
+        224
+    ],
+    "batch_size": 16,
+    "epochs": 8,
+    "architecture": "MobileNetV2"
+}
