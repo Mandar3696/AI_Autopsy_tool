@@ -3,7 +3,6 @@ import { supabase } from "./supabase";
 import { useEffect } from "react";
 
 
-
 const faqs = [
   {
     question: "How accurate is this AI image detection system?",
@@ -38,25 +37,34 @@ const faqs = [
 ];
 
 
+
 export default function App() {
   
- useEffect(() => {
-  // Get current session on load
-  supabase.auth.getSession().then(({ data }) => {
-    setSession(data.session);
-  });
+    useEffect(() => {
+      supabase.auth.getSession().then(({ data }) => {
+        setSession(data.session);
+      });
 
-  // Listen to auth changes
-  const { data: listener } = supabase.auth.onAuthStateChange(
-    (_event, session) => {
-      setSession(session);
-    }
-  );
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setSession(session);
 
-  return () => {
-    listener.subscription.unsubscribe();
-  };
-}, []);
+          // 🔥 RESET EVERYTHING WHEN LOGGED OUT
+          if (!session) {
+            setImage(null);
+            setPreview(null);
+            setResult(null);
+            setRecent([]);
+            setShowHeatmap(false);
+          }
+        }
+      );
+
+      return () => {
+        listener.subscription.unsubscribe();
+      };
+    }, []);
+
 
 
 
@@ -65,7 +73,7 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [recent, setRecent] = useState([]);
-  const [showHeatmap, setShowHeatmap] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const [session, setSession] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   
@@ -157,21 +165,19 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0b1220] via-[#020617] to-black text-white px-6 py-10">
-      <div className="max-w-7xl mx-auto space-y-14">
+    
 
+        <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-[#0b1220] via-[#020617] to-black text-white px-4 sm:px-6 py-8 sm:py-10">
+          
+
+      <div className="w-full max-w-7xl mx-auto space-y-14">
         <div className="flex justify-end mb-4">
-  {/* <button
-    onClick={() => setShowAuth(true)}
-    className="px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 transition"
-  >
-    Login / Sign Up
-  </button> */}
-</div>
+        </div>
 
 
         {/* HEADER */}
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
           {/* LEFT */}
           <div>
             <h1 className="text-3xl font-bold">🧠 AI Autopsy Tool</h1>
@@ -198,22 +204,27 @@ export default function App() {
                 <button
                   onClick={async () => {
                     await supabase.auth.signOut();
+
+                    
                   }}
                   className="px-5 py-2 rounded-xl bg-red-500/10 border border-red-400/30 text-red-300 hover:bg-red-500/20 transition"
                 >
                   Logout
                 </button>
+                
               </>
             )}
+
+
           </div>
         </header>
 
-
         {/* MAIN GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
           {/* LEFT */}
           <div className="space-y-6">
-            <div className="bg-white/8 backdrop-blur-xl border border-white/15 rounded-2xl p-6">
+            <div className=" bg-white/8 backdrop-blur-xl border border-white/15 rounded-2xl p-6">
               <h2 className="text-lg font-semibold mb-3">📤 Upload Image</h2>
 
               <label className="flex flex-col items-center justify-center h-48 border border-dashed border-white/25 rounded-xl cursor-pointer hover:border-cyan-400/70 transition">
@@ -224,7 +235,11 @@ export default function App() {
 
               {preview && (
                 <>
-                  <img src={preview} className="rounded-xl mt-4 max-h-80 mx-auto" />
+                  <img
+                    src={preview}
+                    className="rounded-xl mt-4 max-h-80 mx-auto max-w-full object-contain"
+                  />
+
                   <button
                       onClick={() => {
                         if (!session) {
@@ -281,7 +296,7 @@ export default function App() {
           </div>
 
           {/* RIGHT */}
-          <div className="bg-white/8 backdrop-blur-xl border border-white/15 rounded-2xl p-6">
+          <div className="w-full bg-white/8 backdrop-blur-xl border border-white/15 rounded-2xl p-4 sm:p-6 overflow-hidden">
             <h2 className="text-xl font-semibold mb-4">🧪 Forensic Analysis</h2>
 
             {!result && !loading && (
@@ -350,16 +365,17 @@ export default function App() {
                 {showHeatmap && result.heatmap && (
                   <img
                     src={`data:image/png;base64,${result.heatmap}`}
-                    className="rounded-xl border border-white/10"
+                    className="w-full h-auto rounded-xl border border-white/10 object-contain"
                   />
                 )}
+
               </div>
             )}
           </div>
         </div>
 
         {/* USE CASES */}
-        <section className="space-y-6">
+        <section className="space-y-6" id="use-cases">
           <h2 className="text-2xl font-bold text-center">Use Cases</h2>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -389,7 +405,7 @@ export default function App() {
         </section>
 
         {/* HOW IT WORKS */}
-        <section className="space-y-6">
+        <section className="space-y-6" id="how-it-works">
           <h2 className="text-2xl font-bold text-center">How It Works</h2>
 
           <div className="grid md:grid-cols-3 gap-6  ">
@@ -416,7 +432,7 @@ export default function App() {
         </section>
 
         {/* FAQ SECTION */}
-          <div className="bg-white/5 backdrop-blur-xl
+          <div id="faq" className="bg-white/5 backdrop-blur-xl
                 border border-white/10
                 rounded-xl p-5
 
@@ -482,19 +498,38 @@ export default function App() {
                     Navigation
                   </h4>
                   <ul className="space-y-2 text-sm text-gray-400">
-                    <li className="hover:text-cyan-400 cursor-pointer transition">
-                      Use Cases
+                    <li>
+                      <a
+                        href="#use-cases"
+                        className="hover:text-cyan-400 transition"
+                      >
+                        Use Cases
+                      </a>
                     </li>
-                    <li className="hover:text-cyan-400 cursor-pointer transition">
-                      How It Works
+
+                    <li>
+                      <a
+                        href="#how-it-works"
+                        className="hover:text-cyan-400 transition"
+                      >
+                        How It Works
+                      </a>
                     </li>
-                    <li className="hover:text-cyan-400 cursor-pointer transition">
-                      FAQ
+
+                    <li>
+                      <a
+                        href="#faq"
+                        className="hover:text-cyan-400 transition"
+                      >
+                        FAQ
+                      </a>
                     </li>
-                    <li className="hover:text-cyan-400 cursor-pointer transition">
-                      Blog (Future Scope)
+
+                    <li className="opacity-50 cursor-not-allowed">
+                      Blog (Coming Soon)
                     </li>
                   </ul>
+
                 </div>
 
                 {/* INFORMATION */}
@@ -525,14 +560,17 @@ export default function App() {
 
       </div>
 
-              {session && (
+              {/* {session && (
           <button
-            onClick={async () => await supabase.auth.signOut()}
+            onClick={async () => await supabase.auth.signOut()
+         
+            }
             className="fixed bottom-10 right-10 px-4 py-2 bg-red-500 text-black rounded-lg"
           >
             Logout
           </button>
-        )}
+
+        )} */}
 
                
 
@@ -596,5 +634,9 @@ export default function App() {
 
 
     </div>
+      
+
+    // Admin Route
+    
   );
 }

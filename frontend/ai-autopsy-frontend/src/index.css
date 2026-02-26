@@ -5,10 +5,15 @@
 html, body, #root {
   height: 100%;
 }
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   background: #020617;
+  
 }
 
 body {
