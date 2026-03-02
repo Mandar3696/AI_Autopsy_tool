@@ -138,7 +138,7 @@ export default function App() {
     formData.append("file", image);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/predict", {
+      const res = await fetch("https://aiautopsytool-production.up.railway.app/predict",  {
         method: "POST",
         body: formData,
       });

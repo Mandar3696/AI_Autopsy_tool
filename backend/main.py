@@ -98,6 +98,10 @@ def generate_gradcam(image, model, class_index):
 def home():
     return {"status": "AI Autopsy API running"}
 
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
